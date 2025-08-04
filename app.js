@@ -67,6 +67,20 @@ app.get("/feed",async(req,res)=>{
         res.status(500).send("Internal Server Error");
     }
 })
+app.delete("/user/:userId",async(req,res)=>{
+    try {
+        const userId = req.params.userId;
+        const userDelete = await User.findByIdAndDelete(userId)
+        if(!userDelete){
+            throw new Error("user does not found")
+        }
+        res.send("delete successfully")
+    } catch (error) {
+        console.log("Error fetching user:", error);
+        res.status(500).send("Internal Server Error");
+    }
+    
+})
 
 
 
