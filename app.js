@@ -1,7 +1,8 @@
 const express = require('express');
 const connectDB = require('./src/config/db');
 const User =require('./src/config/models/usermodel')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { isAfter } = require('validator');
 require ('dotenv').config()
 
 const app = express();
@@ -75,6 +76,20 @@ app.delete("/user/:userId",async(req,res)=>{
             throw new Error("user does not found")
         }
         res.send("delete successfully")
+    } catch (error) {
+        console.log("Error fetching user:", error);
+        res.status(500).send("Internal Server Error");
+    }
+    
+})
+
+app.patch("/user/:userId",async(req,res)=>{
+    try {
+        const userId = req.params.userId;
+        const data = req.body;
+        const users = await User.findByIdAndUpdate(userId,data);
+        res.send("Update successfully");
+
     } catch (error) {
         console.log("Error fetching user:", error);
         res.status(500).send("Internal Server Error");
