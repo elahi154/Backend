@@ -46,6 +46,7 @@ app.get("/user",async(req,res)=>{
 
 
 
+
 connectDB().then(()=>{
     console.log("mongodb connection successfully")
     app.listen(5000 , ()=>{
