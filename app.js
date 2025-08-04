@@ -20,7 +20,7 @@ app.post("/register",async(req,res)=>{
             password:hashPassword,
         })
 
-        user.save();
+       await user.save();
         res.send("user added successfully");
     } catch (error) {
         console.log("Something went wrong",error);
@@ -42,6 +42,22 @@ app.get("/user",async(req,res)=>{
     }
     
 })
+app.get("/user/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.send(user);
+    } catch (error) {
+        console.log("Error fetching user by ID:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 
 
 
