@@ -3,10 +3,14 @@ const connectDB = require('./src/config/db');
 const User =require('./src/config/models/usermodel')
 const bcrypt = require('bcrypt');
 const { isAfter } = require('validator');
+const validateSignUpData = require('./src/utils/validation');
 require ('dotenv').config()
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 app.use (express.json());
+app.use(cookieParser())
 
 app.post("/register",async(req,res)=>{
     try {
@@ -14,6 +18,7 @@ app.post("/register",async(req,res)=>{
         if(!fullName || !emailId || !password){
             res.send("All field are required");
         }
+        validateSignUpData;
         const hashPassword = await bcrypt.hash(password,10);
         const user = new User({
             fullName,
@@ -27,6 +32,34 @@ app.post("/register",async(req,res)=>{
         console.log("Something went wrong",error);
     }
 });
+app.post("/login",async(req,res)=>{
+   try {
+    const {emailId, password}=req.body;
+
+    if(!emailId || !password){
+        res.send("please fill all the field");
+    }
+    const users = await User.findOne({emailId});
+    if(!users){
+        res.send("user not found please SignUp");
+    }
+    const checkPassword = await bcrypt.compare(password, users.password);
+
+    if(checkPassword){
+        const token = await jwt.sign({_id:users._id},"Elahi@73");
+        console.log(token);
+        res.cookie ("token",token)
+        res.send("Login sucessfully");
+    }
+    else{
+        res.send("Invalid credintial");
+    }
+    
+   } catch (error) {
+     console.log("Error fetching user:", error);
+        res.status(500).send("Internal Server Error");
+   }
+})
 app.get("/user",async(req,res)=>{
     try {
        const userEmail = req.body.emailId;
@@ -87,6 +120,14 @@ app.patch("/user/:userId",async(req,res)=>{
     try {
         const userId = req.params.userId;
         const data = req.body;
+        const allowed_Update = ["fullName", "gender", "age"];
+
+        const isAllowed_Update = Object.keys(data).every((k)=>
+            allowed_Update.includes(k)
+        )
+        if(!isAllowed_Update){
+            res.status(400).send("UUpdate is not alowed")
+        }
         const users = await User.findByIdAndUpdate(userId,data);
         res.send("Update successfully");
 
@@ -96,6 +137,8 @@ app.patch("/user/:userId",async(req,res)=>{
     }
     
 })
+
+
 
 
 
