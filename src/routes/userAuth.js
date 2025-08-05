@@ -52,6 +52,13 @@ authRouter.post("/login",async(req,res)=>{
      console.log("Error fetching user:", error);
         res.status(500).send("Internal Server Error");
    }
+});
+
+authRouter.post('/logout',async(req,res)=>{
+    res.cookie("token",null, {
+        expires:new Date (Date.now())
+    })
+    res.send("Logout successfully!!!")
 })
 
 module.exports=authRouter;
