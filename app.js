@@ -7,6 +7,7 @@ const validateSignUpData = require('./src/utils/validation');
 require ('dotenv').config()
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const auth = require('./src/middleware/auth');
 
 const app = express();
 app.use (express.json());
@@ -60,20 +61,10 @@ app.post("/login",async(req,res)=>{
         res.status(500).send("Internal Server Error");
    }
 })
-app.get("/user",async(req,res)=>{
+app.get("/user",auth,async(req,res)=>{
     try {
-        const cookies = req.cookies;
-        const {token} = cookies;
-       const decodedMessage = await jwt.verify(token, "Elahi@73");
-       const {_id} = decodedMessage;
-       console.log(_id);
-       const users = await User.findById(_id);
-       if(!users){
-        res.send("User not found")
-       }
-       else{
-        res.send(users);
-       }
+       const users =  req.users;
+       res.send(users);
        
     } catch (error) {
         console.log("cant not get user",error);
