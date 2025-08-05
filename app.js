@@ -2,12 +2,12 @@ const express = require('express');
 const connectDB = require('./src/config/db');
 const User =require('./src/config/models/usermodel')
 const bcrypt = require('bcrypt');
-const { isAfter } = require('validator');
 const validateSignUpData = require('./src/utils/validation');
 require ('dotenv').config()
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const auth = require('./src/middleware/auth');
+
 
 const app = express();
 app.use (express.json());
@@ -17,7 +17,7 @@ app.post("/register",async(req,res)=>{
     try {
         const {fullName, emailId, password} = req.body;
         if(!fullName || !emailId || !password){
-            res.send("All field are required");
+           return res.send("All field are required");
         }
         validateSignUpData;
         const hashPassword = await bcrypt.hash(password,10);
@@ -38,7 +38,7 @@ app.post("/login",async(req,res)=>{
     const {emailId, password}=req.body;
 
     if(!emailId || !password){
-        res.send("please fill all the field");
+       return res.send("please fill all the field");
     }
     const users = await User.findOne({emailId});
     if(!users){
@@ -47,7 +47,7 @@ app.post("/login",async(req,res)=>{
     const checkPassword = await bcrypt.compare(password, users.password);
 
     if(checkPassword){
-        const token = await jwt.sign({_id:users._id},"Elahi@73");
+        const token = await users.getJWT();
         
         res.cookie ("token",token)
         res.send("Login sucessfully");
