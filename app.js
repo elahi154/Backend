@@ -47,7 +47,7 @@ app.post("/login",async(req,res)=>{
 
     if(checkPassword){
         const token = await jwt.sign({_id:users._id},"Elahi@73");
-        console.log(token);
+        
         res.cookie ("token",token)
         res.send("Login sucessfully");
     }
@@ -62,10 +62,14 @@ app.post("/login",async(req,res)=>{
 })
 app.get("/user",async(req,res)=>{
     try {
-       const userEmail = req.body.emailId;
-       const users = await User.findOne({emailId:userEmail});
-       if(users===0){
-        res.send("Invalid email Address");
+        const cookies = req.cookies;
+        const {token} = cookies;
+       const decodedMessage = await jwt.verify(token, "Elahi@73");
+       const {_id} = decodedMessage;
+       console.log(_id);
+       const users = await User.findById(_id);
+       if(!users){
+        res.send("User not found")
        }
        else{
         res.send(users);
