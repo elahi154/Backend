@@ -1,76 +1,22 @@
 const express = require('express');
 const connectDB = require('./src/config/db');
 const User =require('./src/config/models/usermodel')
-const bcrypt = require('bcrypt');
-const validateSignUpData = require('./src/utils/validation');
 require ('dotenv').config()
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const auth = require('./src/middleware/auth');
+const authRouter = require('./src/routes/userAuth');
+const profileRouter = require('./src/routes/userProfile');
 
 
 const app = express();
 app.use (express.json());
 app.use(cookieParser())
 
-app.post("/register",async(req,res)=>{
-    try {
-        const {fullName, emailId, password} = req.body;
-        if(!fullName || !emailId || !password){
-           return res.send("All field are required");
-        }
-        validateSignUpData;
-        const hashPassword = await bcrypt.hash(password,10);
-        const user = new User({
-            fullName,
-            emailId,
-            password:hashPassword,
-        })
+app.use('/',authRouter)
+app.use('/',profileRouter)
+app.use('/',profileRouter)
 
-       await user.save();
-        res.send("user added successfully");
-    } catch (error) {
-        console.log("Something went wrong",error);
-    }
-});
-app.post("/login",async(req,res)=>{
-   try {
-    const {emailId, password}=req.body;
 
-    if(!emailId || !password){
-       return res.send("please fill all the field");
-    }
-    const users = await User.findOne({emailId});
-    if(!users){
-        res.send("user not found please SignUp");
-    }
-    const checkPassword = await bcrypt.compare(password, users.password);
-
-    if(checkPassword){
-        const token = await users.getJWT();
-        
-        res.cookie ("token",token)
-        res.send("Login sucessfully");
-    }
-    else{
-        res.send("Invalid credintial");
-    }
-    
-   } catch (error) {
-     console.log("Error fetching user:", error);
-        res.status(500).send("Internal Server Error");
-   }
-})
-app.get("/user",auth,async(req,res)=>{
-    try {
-       const users =  req.users;
-       res.send(users);
-       
-    } catch (error) {
-        console.log("cant not get user",error);
-    }
-    
-})
 app.get("/user/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
