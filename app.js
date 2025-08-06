@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const authRouter = require('./src/routes/userAuth');
 const profileRouter = require('./src/routes/userProfile');
+const requestRouter = require('./src/routes/userRequest');
 
 
 const app = express();
@@ -14,7 +15,7 @@ app.use(cookieParser())
 
 app.use('/',authRouter)
 app.use('/',profileRouter)
-app.use('/',profileRouter)
+app.use('/',requestRouter)
 
 
 app.get("/user/:userId", async (req, res) => {
